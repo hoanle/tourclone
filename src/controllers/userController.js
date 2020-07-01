@@ -1,7 +1,7 @@
 
 const User = require('./../models/userModel');
 const AppError = require('./../utils/appError');
-const { generateToken, loginWithEmail } = require('./../services/authenticateService');
+const { loginWithEmail } = require('./../services/authenticateService');
 const { catchAsync } = require('./errorController');
 
 exports.createUser = catchAsync(async (request, response, next) => {
@@ -27,7 +27,7 @@ exports.createUser = catchAsync(async (request, response, next) => {
         }
     )
 
-    const token = await generateToken(user);
+    const token = await user.generateToken();
     response.status(200).json({
         status: 'success',
         data: { user, token }
@@ -90,7 +90,7 @@ exports.login = catchAsync(async (request, response, next) => {
     }
 
     const user = await loginWithEmail(email, password);
-    const token = await generateToken(user);
+    const token = await user.generateToken();
     response.status(200).json({
         status: 'success',
         data: { user, token }

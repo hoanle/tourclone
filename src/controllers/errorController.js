@@ -5,7 +5,6 @@ const errorDev = (error, response) => {
         status: error.status,
         error: error,
         message: error.message,
-        stack: error.stack
       });
 }
 
@@ -66,6 +65,6 @@ exports.notFound = (request, response, next) => {
     next(new AppError(404, 'URL not found'))
 };
 
-exports.catchAsync = func => {
+exports.catchAsync = (func) => {
     return (request, response, next) => func(request, response, next).catch(next);
 }

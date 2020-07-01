@@ -3,7 +3,6 @@ const AppError = require('./../utils/appError');
 const { catchAsync } = require('./errorController');
 
 exports.createTag = catchAsync(async (request, response, next) => {
-
     const tag = request.body.tag
     if (!tag) {
         next(new AppError(422, 'Tag is required'))
@@ -22,7 +21,7 @@ exports.createTag = catchAsync(async (request, response, next) => {
 })
 
 exports.getTagList = catchAsync(async (request, response, next) => {
-
+    next(new AppError(401, 'Failed to create tag'))
     const tagList = await Tag.find({});
     response.status(200).json({
         status: 'success',

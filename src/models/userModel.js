@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
-
 const validator = require("email-validator");
+const jwt = require('jsonwebtoken')
 
 const userScheme = mongoose.Schema({
     name: {
@@ -24,7 +24,6 @@ const userScheme = mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
         trim: true,
         validate: {
             validator: function (v) {
@@ -34,14 +33,14 @@ const userScheme = mongoose.Schema({
         },
     },
     role: {
-        type: String, 
-        required: [true, "User must have a role"], 
-        trim: true, 
+        type: String,
+        required: [true, "User must have a role"],
+        trim: true,
         enum: ['host', 'normal'],
     },
     introduction: {
-        type: String, 
-        trim: true, 
+        type: String,
+        trim: true,
     },
     tokens: [{
         type: String
@@ -56,6 +55,23 @@ userScheme.methods.toJSON = function () {
     delete userObject.tokens;
     return userObject
 }
+
+userScheme.methods.generateToken = async function () {
+    const user = this;
+    const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    user.tokens.push(token)
+    await user.save();
+    return token;
+}
+
+userScheme.statics.findOneOrCreate = async (email, name) => {
+    let found = await User.findOne({ email });
+    if (!found) {
+        found = await User.create({ email, name, role: 'normal' });
+    }
+    await found.generateToken();
+    return found;
+};
 
 userScheme.pre('save', async function (next) {
     if (!this.isModified('password')) return next();

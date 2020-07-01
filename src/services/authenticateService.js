@@ -16,13 +16,6 @@ exports.loginWithEmail = async (email, password) => {
     return user;
 }
 
-exports.generateToken = async (user) => {
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    user.tokens.push(token)
-    await user.save();
-    return token;
-}
-
 exports.requiresHost = async (request, response, next) => {
     const user = request.user 
     if (user.role !== 'host') {

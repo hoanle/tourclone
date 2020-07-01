@@ -50,25 +50,20 @@ exports.createExperience = catchAsync(async (request, response, next) => {
 })
 
 exports.getMyExperiences = catchAsync(async (request, response, next) => {
-
-    const myExperiences = await Experience.find({ host: request.user._id })
+        const myExperiences = await Experience.find({ host: request.user._id })
     response.status(200).json({
         status: 'success',
         data: { myExperiences }
     })
-
 })
 
-exports.updateExperience = async (request, response) => {
+exports.updateExperience = catchAsync(async (request, response, next) => {
 
     const { title, description, duration, groupSize, images, items, price, country, tags } = request.body
     if (!title && !description && !duration
         && !groupSize && !images && !items
         && !price && !country && !tags) {
-        return response.status(400).json({
-            status: 'fail',
-            message: 'Params is missing'
-        })
+            next(new AppError(400, "Param is missing"))
     }
 
     const experience = request.experience
@@ -108,7 +103,7 @@ exports.updateExperience = async (request, response) => {
         status: 'success',
         data: { experience }
     })
-}
+})
 
 exports.showExperience = async (request, response) => {
 
